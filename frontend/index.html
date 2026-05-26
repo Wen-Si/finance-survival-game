@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>金融职场生存记 · 宇宙证券</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0e1a;--card:#131a2e;--card2:#1a2340;--border:#2a3558;
+  --gold:#d4a84b;--gold2:#f0d078;--blue:#4a8fd9;--red:#e74c3c;
+  --green:#2ecc71;--text:#e8e6e3;--text2:#9aa5b4;--text3:#6b7a8d;
+  --shadow:0 4px 24px rgba(0,0,0,0.4);
+}
+html,body{height:100%;font-family:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);overflow:hidden}
+body{display:flex;align-items:center;justify-content:center}
+#app{width:100%;max-width:560px;height:100vh;max-height:960px;position:relative;overflow:hidden}
+@media(min-width:600px){#app{height:92vh;border-radius:16px;border:1px solid var(--border);box-shadow:var(--shadow)}}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;padding:24px;transition:opacity .4s,transform .4s;opacity:0;pointer-events:none;transform:translateY(20px)}
+.screen.active{opacity:1;pointer-events:all;transform:translateY(0)}
+
+/* Buttons */
+.btn{padding:12px 36px;border:none;border-radius:8px;font-size:15px;font-family:inherit;cursor:pointer;transition:all .2s;font-weight:500}
+.btn-gold{background:linear-gradient(135deg,var(--gold),#c49a3a);color:#1a1a2e;box-shadow:0 4px 16px rgba(212,168,75,0.3)}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(212,168,75,0.4)}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text2);margin-top:10px}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold)}
+.btn-sm{padding:8px 20px;font-size:13px}
+.btn-danger{background:rgba(231,76,60,0.15);border:1px solid rgba(231,76,60,0.3);color:var(--red)}
+
+/* ===== Auth Screen ===== */
+#screen-auth{align-items:center;justify-content:center;text-align:center;background:linear-gradient(180deg,#0a0e1a 0%,#131a2e 50%,#1a2340 100%)}
+.auth-logo{font-size:64px;margin-bottom:12px;filter:drop-shadow(0 0 20px rgba(212,168,75,0.2))}
+.auth-title{font-size:36px;font-weight:700;color:var(--gold);letter-spacing:4px;margin-bottom:4px}
+.auth-sub{font-size:13px;color:var(--text3);margin-bottom:36px;letter-spacing:2px}
+.auth-box{width:100%;max-width:360px;text-align:left}
+.auth-tabs{display:flex;gap:0;margin-bottom:20px;border-radius:8px;overflow:hidden;border:1px solid var(--border)}
+.auth-tab{flex:1;padding:10px;text-align:center;background:var(--card);color:var(--text2);border:none;font-size:14px;font-family:inherit;cursor:pointer;transition:all .2s}
+.auth-tab.active{background:var(--gold);color:#1a1a2e;font-weight:700}
+.form-group{margin-bottom:14px}
+.form-label{display:block;font-size:12px;color:var(--text2);margin-bottom:6px}
+.form-input{width:100%;padding:11px 14px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;font-family:inherit;outline:none;transition:border-color .2s}
+.form-input:focus{border-color:var(--gold)}
+.auth-error{font-size:12px;color:var(--red);margin-bottom:10px;min-height:16px}
+.auth-footer{font-size:11px;color:var(--text3);margin-top:20px}
+
+/* ===== Character Creation ===== */
+#screen-create{background:var(--bg);overflow-y:auto}
+.create-title{font-size:20px;font-weight:700;color:var(--gold);text-align:center;margin-bottom:20px}
+.stat-alloc{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.stat-chip{flex:1;min-width:calc(50% - 4px);padding:10px;background:var(--card);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:all .2s;text-align:center}
+.stat-chip:hover{border-color:var(--blue)}
+.stat-chip.selected{border-color:var(--gold);background:rgba(212,168,75,0.1)}
+.stat-chip .chip-name{font-size:12px;color:var(--text2)}
+.stat-chip .chip-val{font-size:16px;font-weight:700;color:var(--gold);margin-top:2px}
+.stat-chip .chip-desc{font-size:10px;color:var(--text3);margin-top:2px}
+.points-left{text-align:center;font-size:13px;color:var(--text2);margin:12px 0}
+.points-left span{color:var(--gold);font-weight:700}
+
+/* ===== Game Screen ===== */
+#screen-game{padding:0;background:var(--bg)}
+.game-header{padding:10px 14px;background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.game-day{font-size:11px;color:var(--text2)}
+.game-day b{color:var(--gold)}
+.game-title-sm{font-size:13px;color:var(--gold);font-weight:700}
+.header-btns{display:flex;gap:6px}
+.icon-btn{width:30px;height:30px;border:none;border-radius:6px;background:var(--card2);color:var(--text2);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.icon-btn:hover{background:var(--border);color:var(--gold)}
+.game-stats{display:flex;gap:4px;padding:8px 14px;background:var(--card2);border-bottom:1px solid var(--border);flex-shrink:0}
+.stat-bar{flex:1;text-align:center}
+.stat-bar .sb-label{font-size:9px;color:var(--text3)}
+.stat-bar .sb-track{height:4px;background:var(--border);border-radius:2px;margin-top:2px;overflow:hidden}
+.stat-bar .sb-fill{height:100%;border-radius:2px;transition:width .6s ease}
+.stat-bar .sb-val{font-size:10px;font-weight:700;margin-top:1px}
+.sb-skill .sb-fill{background:var(--blue)}.sb-skill .sb-val{color:var(--blue)}
+.sb-rel .sb-fill{background:var(--green)}.sb-rel .sb-val{color:var(--green)}
+.sb-rep .sb-fill{background:var(--gold)}.sb-rep .sb-val{color:var(--gold)}
+.sb-str .sb-fill{background:var(--red)}.sb-str .sb-val{color:var(--red)}
+.sb-wealth .sb-fill{background:#9b59b6}.sb-wealth .sb-val{color:#9b59b6}
+.game-body{flex:1;overflow-y:auto;padding:18px 14px;scroll-behavior:smooth}
+.game-body::-webkit-scrollbar{width:3px}
+.game-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.scene-act{font-size:10px;color:var(--gold);letter-spacing:2px;margin-bottom:4px;text-transform:uppercase}
+.scene-title{font-size:18px;font-weight:700;color:var(--text);margin-bottom:14px;line-height:1.4}
+.scene-text{font-size:13px;line-height:1.85;color:var(--text2);margin-bottom:16px}
+.scene-text p{margin-bottom:10px}
+.scene-text .highlight{color:var(--gold);font-weight:500}
+.scene-text .dialogue{color:var(--text);font-style:italic;border-left:2px solid var(--gold);padding-left:10px;margin:10px 0}
+.scene-text .narrator{color:var(--text3);font-size:12px}
+.choices{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.choice-btn{padding:12px 14px;background:var(--card);border:1px solid var(--border);border-radius:9px;color:var(--text);font-size:13px;font-family:inherit;cursor:pointer;text-align:left;transition:all .25s;line-height:1.5;position:relative}
+.choice-btn:hover{border-color:var(--gold);background:rgba(212,168,75,0.06);transform:translateX(3px)}
+.choice-btn .choice-hint{display:block;font-size:10px;color:var(--text3);margin-top:3px}
+.choice-btn.locked{opacity:0.4;pointer-events:none}
+.choice-btn.locked::after{content:'🔒 属性不足';position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:10px;color:var(--red)}
+
+/* Stat change toast */
+.stat-toast{position:fixed;top:60px;left:50%;transform:translateX(-50%);padding:6px 16px;border-radius:6px;font-size:12px;font-weight:500;z-index:100;animation:toastIn .4s ease forwards,toastOut .4s ease 1.4s forwards;pointer-events:none}
+.stat-toast.pos{background:rgba(46,204,113,0.15);border:1px solid rgba(46,204,113,0.3);color:var(--green)}
+.stat-toast.neg{background:rgba(231,76,60,0.15);border:1px solid rgba(231,76,60,0.3);color:var(--red)}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+@keyframes toastOut{to{opacity:0;transform:translateX(-50%) translateY(-10px)}}
+
+/* Knowledge panel */
+.knowledge-panel{margin-top:14px;padding:12px;background:rgba(74,143,217,0.08);border:1px solid rgba(74,143,217,0.2);border-radius:8px}
+.knowledge-panel .kp-title{font-size:11px;color:var(--blue);font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:4px}
+.knowledge-panel .kp-text{font-size:11px;line-height:1.7;color:var(--text2)}
+
+/* ===== Journal Panel ===== */
+#screen-journal{background:var(--bg);z-index:50}
+.journal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.journal-title{font-size:18px;font-weight:700;color:var(--gold)}
+.journal-close{width:32px;height:32px;border:none;border-radius:6px;background:var(--card);color:var(--text2);cursor:pointer;font-size:16px}
+.journal-tabs{display:flex;gap:6px;margin-bottom:14px}
+.j-tab{padding:7px 14px;border:none;border-radius:6px;background:var(--card);color:var(--text2);font-size:12px;font-family:inherit;cursor:pointer;transition:all .2s}
+.j-tab.active{background:var(--gold);color:#1a1a2e;font-weight:700}
+.journal-content{flex:1;overflow-y:auto}
+.j-section{margin-bottom:16px}
+.j-section h3{font-size:13px;color:var(--gold);margin-bottom:8px;font-weight:500}
+.j-stat-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:8px 10px;background:var(--card);border-radius:6px}
+.j-stat-icon{font-size:18px}
+.j-stat-info{flex:1}
+.j-stat-name{font-size:12px;color:var(--text2)}
+.j-stat-bar{height:5px;background:var(--border);border-radius:3px;margin-top:3px;overflow:hidden}
+.j-stat-fill{height:100%;border-radius:3px;transition:width .6s}
+.j-stat-val{font-size:14px;font-weight:700;min-width:32px;text-align:right}
+.j-career{padding:14px;background:var(--card);border-radius:8px;text-align:center}
+.j-career .jc-icon{font-size:28px;margin-bottom:6px}
+.j-career .jc-title{font-size:16px;font-weight:700;color:var(--gold)}
+.j-career .jc-company{font-size:12px;color:var(--text2)}
+.j-career .jc-salary{font-size:13px;color:var(--green);margin-top:6px}
+.j-knowledge-item{padding:10px;background:var(--card);border-radius:6px;margin-bottom:6px;border-left:3px solid var(--blue)}
+.j-knowledge-item .jki-name{font-size:12px;color:var(--blue);font-weight:500}
+.j-knowledge-item .jki-desc{font-size:11px;color:var(--text2);margin-top:3px;line-height:1.6}
+.j-event{padding:8px 10px;background:var(--card);border-radius:6px;margin-bottom:5px;font-size:12px;color:var(--text2)}
+.j-event .je-day{font-size:10px;color:var(--text3)}
+
+/* ===== Ending Screen ===== */
+#screen-ending{align-items:center;justify-content:center;text-align:center;background:linear-gradient(180deg,#0a0e1a,#1a2340)}
+.end-icon{font-size:56px;margin-bottom:12px}
+.end-title{font-size:26px;font-weight:700;color:var(--gold);margin-bottom:6px}
+.end-subtitle{font-size:13px;color:var(--text2);margin-bottom:20px}
+.end-summary{font-size:12px;line-height:1.8;color:var(--text2);margin-bottom:28px;max-width:420px;text-align:left}
+.end-summary p{margin-bottom:8px}
+.end-stats{display:flex;gap:12px;margin-bottom:28px;flex-wrap:wrap;justify-content:center}
+.end-stat{padding:10px 14px;background:var(--card);border-radius:8px;min-width:70px}
+.end-stat .es-val{font-size:18px;font-weight:700;color:var(--gold)}
+.end-stat .es-label{font-size:10px;color:var(--text3);margin-top:2px}
+.end-btns{display:flex;gap:10px}
+
+/* ===== Loading ===== */
+.loading{display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column;gap:12px}
+.loading-spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:13px;color:var(--text2)}
+
+/* Modal */
+.modal-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:200;opacity:0;pointer-events:none;transition:opacity .3s}
+.modal-overlay.show{opacity:1;pointer-events:all}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;max-width:400px;width:90%;max-height:70vh;overflow-y:auto}
+.modal h3{color:var(--gold);margin-bottom:10px;font-size:16px}
+.modal p{font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:8px}
+
+/* Save slots */
+.save-list{margin-top:12px}
+.save-item{display:flex;align-items:center;justify-content:space-between;padding:10px;background:var(--card2);border-radius:6px;margin-bottom:6px}
+.save-item .si-info{font-size:12px;color:var(--text2)}
+.save-item .si-name{font-weight:700;color:var(--text)}
+.save-item .si-actions{display:flex;gap:4px}
+
+/* Leaderboard */
+.lb-item{display:flex;align-items:center;gap:10px;padding:10px;background:var(--card);border-radius:6px;margin-bottom:5px}
+.lb-rank{font-size:16px;font-weight:700;color:var(--gold);min-width:28px;text-align:center}
+.lb-info{flex:1}
+.lb-name{font-size:13px;font-weight:500}
+.lb-score{font-size:11px;color:var(--text2)}
+
+.fade-in{animation:fadeIn .4s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div id="app">
+  <!-- Auth Screen -->
+  <div id="screen-auth" class="screen active">
+    <div class="auth-logo">🏛️</div>
+    <div class="auth-title">金融职场生存记</div>
+    <div class="auth-sub">宇宙证券 · 模拟经营</div>
+    <div class="auth-box">
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchAuthTab('login')">登录</button>
+        <button class="auth-tab" onclick="switchAuthTab('register')">注册</button>
+      </div>
+      <div id="auth-login">
+        <div class="form-group"><label class="form-label">用户名</label><input class="form-input" id="login-user" placeholder="请输入用户名" autocomplete="username"></div>
+        <div class="form-group"><label class="form-label">密码</label><input class="form-input" id="login-pass" type="password" placeholder="请输入密码" autocomplete="current-password"></div>
+        <div class="auth-error" id="login-error"></div>
+        <button class="btn btn-gold" style="width:100%" onclick="doLogin()">登 录</button>
+      </div>
+      <div id="auth-register" style="display:none">
+        <div class="form-group"><label class="form-label">用户名</label><input class="form-input" id="reg-user" placeholder="3-20个字符" autocomplete="username"></div>
+        <div class="form-group"><label class="form-label">昵称</label><input class="form-input" id="reg-nick" placeholder="可选"></div>
+        <div class="form-group"><label class="form-label">密码</label><input class="form-input" id="reg-pass" type="password" placeholder="至少6个字符" autocomplete="new-password"></div>
+        <div class="form-group"><label class="form-label">确认密码</label><input class="form-input" id="reg-pass2" type="password" placeholder="再次输入密码" autocomplete="new-password"></div>
+        <div class="auth-error" id="reg-error"></div>
+        <button class="btn btn-gold" style="width:100%" onclick="doRegister()">注 册</button>
+      </div>
+      <div class="auth-footer">宇宙证券 · 金融职场生存模拟器 v2.0</div>
+    </div>
+  </div>
+
+  <!-- Character Creation -->
+  <div id="screen-create" class="screen">
+    <div class="create-title">📋 创建角色</div>
+    <div class="form-group">
+      <label class="form-label">角色姓名</label>
+      <input class="form-input" id="input-name" placeholder="输入你的游戏名" maxlength="12">
+    </div>
+    <div class="form-group">
+      <label class="form-label">学历背景</label>
+      <div class="stat-alloc" id="edu-options">
+        <div class="stat-chip" onclick="selectEdu(this,'finance')"><div class="chip-name">🎓 金融学</div><div class="chip-desc">专业+10</div></div>
+        <div class="stat-chip" onclick="selectEdu(this,'mba')"><div class="chip-name">📊 MBA</div><div class="chip-desc">人脉+10</div></div>
+        <div class="stat-chip" onclick="selectEdu(this,'tech')"><div class="chip-name">💻 理工科</div><div class="chip-desc">分析+10</div></div>
+        <div class="stat-chip" onclick="selectEdu(this,'law')"><div class="chip-name">⚖️ 法学</div><div class="chip-desc">声望+10</div></div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">分配额外属性点 <span id="points-remain" style="color:var(--gold)">（剩余：5点）</span></label>
+      <div class="stat-alloc">
+        <div class="stat-chip" onclick="allocPoint('skill')"><div class="chip-name">专业技能</div><div class="chip-val" id="alloc-skill">0</div></div>
+        <div class="stat-chip" onclick="allocPoint('relationship')"><div class="chip-name">人脉关系</div><div class="chip-val" id="alloc-rel">0</div></div>
+        <div class="stat-chip" onclick="allocPoint('reputation')"><div class="chip-name">声望名誉</div><div class="chip-val" id="alloc-rep">0</div></div>
+        <div class="stat-chip" onclick="allocPoint('stress_mgmt')"><div class="chip-name">压力管理</div><div class="chip-val" id="alloc-str">0</div></div>
+      </div>
+    </div>
+    <button class="btn btn-gold" style="width:100%;margin-top:auto" onclick="startGame()">进入宇宙证券 →</button>
+  </div>
+
+  <!-- Main Game -->
+  <div id="screen-game" class="screen">
+    <div class="game-header">
+      <div><div class="game-day">第 <b id="g-day">1</b> 天 · <span id="g-act-label">第一章</span></div></div>
+      <div class="game-title-sm" id="g-job-title">初级分析师</div>
+      <div class="header-btns">
+        <button class="icon-btn" onclick="showSaveModal()" title="存档">💾</button>
+        <button class="icon-btn" onclick="showJournal()" title="档案">📊</button>
+      </div>
+    </div>
+    <div class="game-stats">
+      <div class="stat-bar sb-skill"><div class="sb-label">专业</div><div class="sb-track"><div class="sb-fill" id="bar-skill"></div></div><div class="sb-val" id="val-skill">0</div></div>
+      <div class="stat-bar sb-rel"><div class="sb-label">人脉</div><div class="sb-track"><div class="sb-fill" id="bar-rel"></div></div><div class="sb-val" id="val-rel">0</div></div>
+      <div class="stat-bar sb-rep"><div class="sb-label">声望</div><div class="sb-track"><div class="sb-fill" id="bar-rep"></div></div><div class="sb-val" id="val-rep">0</div></div>
+      <div class="stat-bar sb-str"><div class="sb-label">压力</div><div class="sb-track"><div class="sb-fill" id="bar-str"></div></div><div class="sb-val" id="val-str">0</div></div>
+      <div class="stat-bar sb-wealth"><div class="sb-label">财富</div><div class="sb-track"><div class="sb-fill" id="bar-wealth"></div></div><div class="sb-val" id="val-wealth">0</div></div>
+    </div>
+    <div class="game-body" id="game-body"><div id="scene-content"></div></div>
+  </div>
+
+  <!-- Journal -->
+  <div id="screen-journal" class="screen">
+    <div class="journal-header"><div class="journal-title">📊 个人档案</div><button class="journal-close" onclick="hideJournal()">✕</button></div>
+    <div class="journal-tabs">
+      <button class="j-tab active" onclick="switchJTab(this,'status')">状态</button>
+      <button class="j-tab" onclick="switchJTab(this,'knowledge')">知识库</button>
+      <button class="j-tab" onclick="switchJTab(this,'log')">事件录</button>
+      <button class="j-tab" onclick="switchJTab(this,'leaderboard')">排行榜</button>
+    </div>
+    <div class="journal-content" id="journal-content"></div>
+  </div>
+
+  <!-- Ending -->
+  <div id="screen-ending" class="screen">
+    <div class="end-icon" id="end-icon">🏆</div>
+    <div class="end-title" id="end-title">游戏结束</div>
+    <div class="end-subtitle" id="end-subtitle"></div>
+    <div class="end-summary" id="end-summary"></div>
+    <div class="end-stats" id="end-stats"></div>
+    <div class="end-btns">
+      <button class="btn btn-gold" onclick="location.reload()">重新开始</button>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal" id="modal-content"></div>
+  </div>
+</div>
+
+<script src="scenes.js"></script>
+<script>
+// ========== CONFIG ==========
+const API_BASE = window.location.origin + '/api';
+
+// ========== STATE ==========
+let token = localStorage.getItem('fg_token');
+let currentUser = null;
+let selectedEdu = null;
+let allocPts = {skill:0,relationship:0,reputation:0,stress_mgmt:0};
+let allocRemain = 5;
+
+const CAREER = [
+  {title:'初级分析师',minDay:0,icon:'📊',salary:'月薪 ¥12,000'},
+  {title:'高级分析师',minDay:10,icon:'📈',salary:'月薪 ¥25,000'},
+  {title:'副总裁(VP)',minDay:25,icon:'💼',salary:'月薪 ¥50,000'},
+  {title:'执行董事(ED)',minDay:50,icon:'🏛️',salary:'月薪 ¥80,000'},
+  {title:'董事总经理(MD)',minDay:75,icon:'👔',salary:'年薪百万+'}
+];
+
+let G = {
+  name:'', edu:'', day:1, act:1, scene:'scene_1_1',
+  stats:{skill:20,relationship:15,reputation:10,stress_mgmt:50,wealth:10},
+  knowledge:[], log:[], choices:0, promoted:false, ended:false
+};
+
+// ========== API ==========
+async function api(path, opts={}){
+  const headers = {'Content-Type':'application/json'};
+  if(token) headers['Authorization'] = 'Bearer ' + token;
+  const res = await fetch(API_BASE + path, {...opts, headers});
+  const data = await res.json();
+  if(!res.ok) throw new Error(data.error || '请求失败');
+  return data;
+}
+
+// ========== AUTH ==========
+function switchAuthTab(tab){
+  document.querySelectorAll('.auth-tab').forEach((t,i)=>t.classList.toggle('active', (i===0&&tab==='login')||(i===1&&tab==='register')));
+  document.getElementById('auth-login').style.display = tab==='login'?'block':'none';
+  document.getElementById('auth-register').style.display = tab==='register'?'block':'none';
+}
+
+async function doLogin(){
+  const u = document.getElementById('login-user').value.trim();
+  const p = document.getElementById('login-pass').value;
+  const errEl = document.getElementById('login-error');
+  errEl.textContent = '';
+  if(!u||!p){errEl.textContent='请输入用户名和密码';return}
+  try{
+    const data = await api('/auth/login',{method:'POST',body:JSON.stringify({username:u,password:p})});
+    token = data.token;
+    currentUser = data.user;
+    localStorage.setItem('fg_token', token);
+    onLoginSuccess();
+  }catch(e){errEl.textContent=e.message}
+}
+
+async function doRegister(){
+  const u = document.getElementById('reg-user').value.trim();
+  const n = document.getElementById('reg-nick').value.trim();
+  const p = document.getElementById('reg-pass').value;
+  const p2 = document.getElementById('reg-pass2').value;
+  const errEl = document.getElementById('reg-error');
+  errEl.textContent = '';
+  if(!u||!p){errEl.textContent='请输入用户名和密码';return}
+  if(p!==p2){errEl.textContent='两次密码不一致';return}
+  try{
+    const data = await api('/auth/register',{method:'POST',body:JSON.stringify({username:u,password:p,nickname:n||u})});
+    token = data.token;
+    currentUser = data.user;
+    localStorage.setItem('fg_token', token);
+    onLoginSuccess();
+  }catch(e){errEl.textContent=e.message}
+}
+
+function onLoginSuccess(){
+  checkExistingSave();
+}
+
+async function checkExistingSave(){
+  try{
+    const data = await api('/game/load');
+    if(data.saves && data.saves.length > 0){
+      showLoadPrompt(data.saves);
+    } else {
+      showScreen('create');
+    }
+  }catch(e){
+    showScreen('create');
+  }
+}
+
+function showLoadPrompt(saves){
+  const modal = document.getElementById('modal-content');
+  let html = '<h3>📂 发现存档</h3><p>你有保存的游戏进度，是否继续？</p><div class="save-list">';
+  saves.forEach(s=>{
+    const d = new Date(s.updated_at).toLocaleString('zh-CN');
+    const state = s.state;
+    html += `<div class="save-item">
+      <div class="si-info"><div class="si-name">${s.name} · ${state.name||'未命名'}</div><div>第${state.day}天 · ${d}</div></div>
+      <div class="si-actions">
+        <button class="btn btn-sm btn-gold" onclick="loadSave(${s.id})">继续</button>
+      </div>
+    </div>`;
+  });
+  html += '</div><button class="btn btn-outline" style="width:100%;margin-top:12px" onclick="closeModal();showScreen(\'create\')">开始新游戏</button>';
+  modal.innerHTML = html;
+  document.getElementById('modal-overlay').classList.add('show');
+}
+
+async function loadSave(id){
+  try{
+    const data = await api('/game/load');
+    const save = data.saves.find(s=>s.id===id);
+    if(save){
+      G = save.state;
+      closeModal();
+      showScreen('game');
+      renderSceneDirect(G.scene);
+    }
+  }catch(e){alert('加载失败: '+e.message)}
+}
+
+// ========== CHARACTER CREATION ==========
+function selectEdu(el, edu){
+  document.querySelectorAll('#edu-options .stat-chip').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedEdu = edu;
+}
+
+function allocPoint(stat){
+  if(allocRemain<=0)return;
+  allocPts[stat]++;allocRemain--;
+  document.getElementById('alloc-skill').textContent=allocPts.skill;
+  document.getElementById('alloc-rel').textContent=allocPts.relationship;
+  document.getElementById('alloc-rep').textContent=allocPts.reputation;
+  document.getElementById('alloc-str').textContent=allocPts.stress_mgmt;
+  document.getElementById('points-remain').innerHTML=`（剩余：<span>${allocRemain}点</span>）`;
+}
+
+function startGame(){
+  let name = document.getElementById('input-name').value.trim() || '林远';
+  if(!selectedEdu) selectedEdu = 'finance';
+  G = {
+    name, edu:selectedEdu, day:1, act:1, scene:'scene_1_1',
+    stats:{skill:20,relationship:15,reputation:10,stress_mgmt:50,wealth:10},
+    knowledge:[], log:[], choices:0, promoted:false, ended:false
+  };
+  if(selectedEdu==='finance') G.stats.skill+=10;
+  if(selectedEdu==='mba') G.stats.relationship+=10;
+  if(selectedEdu==='tech') G.stats.skill+=10;
+  if(selectedEdu==='law') G.stats.reputation+=10;
+  G.stats.skill+=allocPts.skill;G.stats.relationship+=allocPts.relationship;
+  G.stats.reputation+=allocPts.reputation;G.stats.stress_mgmt+=allocPts.stress_mgmt;
+  clampAll();
+  G.log.push({day:0,text:`🎓 ${name} 以${({finance:'金融学',mba:'MBA',tech:'理工科',law:'法学'})[selectedEdu]}背景加入宇宙证券`});
+  showScreen('game');
+  renderScene('scene_1_1');
+}
+
+// ========== GAME ENGINE ==========
+function clamp(v,min=0,max=100){return Math.max(min,Math.min(max,v))}
+function clampAll(){for(let k of Object.keys(G.stats))G.stats[k]=clamp(G.stats[k])}
+
+function getCareer(){let l=CAREER[0];for(let c of CAREER)if(G.day>=c.minDay)l=c;return l}
+
+function applyEffects(eff){
+  if(!eff)return;
+  let changes=[];
+  for(let[k,v]of Object.entries(eff)){
+    if(G.stats[k]!==undefined){
+      let old=G.stats[k];G.stats[k]=clamp(G.stats[k]+v);
+      if(G.stats[k]!==old)changes.push({stat:k,change:v});
+    }
+  }
+  showToasts(changes);
+}
+
+function showToasts(changes){
+  const names={skill:'专业',relationship:'人脉',reputation:'声望',stress_mgmt:'压力',wealth:'财富'};
+  changes.forEach((c,i)=>{
+    setTimeout(()=>{
+      let el=document.createElement('div');
+      el.className='stat-toast '+(c.change>0?'pos':'neg');
+      el.textContent=`${names[c.stat]} ${c.change>0?'+':''}${c.change}`;
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(),2200);
+    },i*250);
+  });
+}
+
+function updateUI(){
+  document.getElementById('g-day').textContent=G.day;
+  const acts={1:'第一章',2:'第二章',3:'第三章',4:'第四章',5:'第五章',6:'第六章',7:'第七章',8:'第八章',9:'第九章',10:'第十章'};
+  document.getElementById('g-act-label').textContent=acts[G.act]||'';
+  document.getElementById('g-job-title').textContent=getCareer().title;
+  const map={skill:'skill',relationship:'rel',reputation:'rep',stress_mgmt:'str',wealth:'wealth'};
+  for(let[k,s]of Object.entries(map)){
+    document.getElementById('bar-'+s).style.width=G.stats[k]+'%';
+    document.getElementById('val-'+s).textContent=G.stats[k];
+  }
+}
+
+function renderScene(sid){
+  if(sid==='_ending'){showEnding();return}
+  if(sid==='_check_promotion'){checkPromotion();return}
+
+  let scene = window.SCENES[sid];
+  if(!scene){console.error('Scene not found:',sid);return}
+  G.scene=sid;G.act=scene.act||G.act;G.day++;
+  if(G.stats.stress_mgmt<30)G.stats.stress_mgmt=clamp(G.stats.stress_mgmt+2);
+
+  let html=`<div class="scene-act fade-in">第${['','一','二','三','四','五','六','七','八','九','十'][scene.act]}章</div>`;
+  html+=`<h2 class="scene-title fade-in">${scene.title}</h2>`;
+  html+=`<div class="scene-text fade-in">${scene.text.replace(/\{name\}/g,G.name)}</div>`;
+
+  if(scene.knowledge && !G.knowledge.includes(scene.knowledge) && window.KNOWLEDGE_DB[scene.knowledge]){
+    G.knowledge.push(scene.knowledge);
+    G.log.push({day:G.day,text:`📚 习得知识：${window.KNOWLEDGE_DB[scene.knowledge].name}`});
+    let k=window.KNOWLEDGE_DB[scene.knowledge];
+    html+=`<div class="knowledge-panel fade-in"><div class="kp-title">💡 ${k.name}</div><div class="kp-text">${k.desc}</div></div>`;
+  }
+
+  html+='<div class="choices fade-in">';
+  scene.choices.forEach((c,i)=>{
+    let locked=false;
+    if(c.requires){for(let[k,v]of Object.entries(c.requires)){if(G.stats[k]<v)locked=true}}
+    html+=`<button class="choice-btn ${locked?'locked':''}" ${locked?'disabled':''} onclick="makeChoice('${sid}',${i})">${c.text}<span class="choice-hint">${c.hint||''}</span></button>`;
+  });
+  html+='</div>';
+
+  document.getElementById('scene-content').innerHTML=html;
+  document.getElementById('game-body').scrollTop=0;
+  updateUI();
+}
+
+function makeChoice(sid,idx){
+  let scene=window.SCENES[sid];
+  let choice=scene.choices[idx];
+  G.choices++;
+  applyEffects(choice.effects);
+  G.log.push({day:G.day,text:`选择：${choice.text.substring(0,25)}...`});
+  if(choice.knowledge&&!G.knowledge.includes(choice.knowledge)&&window.KNOWLEDGE_DB[choice.knowledge]){
+    G.knowledge.push(choice.knowledge);
+    G.log.push({day:G.day,text:`📚 习得知识：${window.KNOWLEDGE_DB[choice.knowledge].name}`});
+  }
+  if(G.stats.stress_mgmt<=0){showBurnout();return}
+  if(G.stats.reputation<=0){showFired();return}
+  setTimeout(()=>renderScene(choice.next),350);
+}
+
+function renderSceneDirect(sid){
+  let scene=window.SCENES[sid];
+  if(!scene){renderScene(sid);return}
+  G.scene=sid;G.act=scene.act||G.act;
+  let html=`<div class="scene-act fade-in">第${['','一','二','三','四','五','六','七','八','九','十'][scene.act]}章</div>`;
+  html+=`<h2 class="scene-title fade-in">${scene.title}</h2>`;
+  html+=`<div class="scene-text fade-in">${scene.text.replace(/\{name\}/g,G.name)}</div>`;
+  html+='<div class="choices fade-in">';
+  scene.choices.forEach((c,i)=>{
+    let locked=false;
+    if(c.requires){for(let[k,v]of Object.entries(c.requires)){if(G.stats[k]<v)locked=true}}
+    html+=`<button class="choice-btn ${locked?'locked':''}" ${locked?'disabled':''} onclick="makeChoice('${sid}',${i})">${c.text}<span class="choice-hint">${c.hint||''}</span></button>`;
+  });
+  html+='</div>';
+  document.getElementById('scene-content').innerHTML=html;
+  document.getElementById('game-body').scrollTop=0;
+  updateUI();
+}
+
+// ========== PROMOTION CHECK ==========
+function checkPromotion(){
+  let total=G.stats.skill+G.stats.relationship+G.stats.reputation;
+  G.promoted=total>=120;
+  if(G.promoted){G.stats.wealth=clamp(G.stats.wealth+15);G.log.push({day:G.day,text:'🎉 晋升为副总裁(VP)！'})}
+  else{G.log.push({day:G.day,text:'😔 晋升未果，继续努力'})}
+
+  let scene={
+    act:5,title:G.promoted?'🎉 晋升成功！':'😔 结果公布',
+    text:G.promoted
+      ?`<p>你打开邮件——</p><p class="highlight" style="text-align:center;font-size:15px;margin:12px 0">"经评审委员会一致同意，任命${G.name}为投行部副总裁(VP)。"</p><p>李伟拍了拍你的肩膀：</p><p class="dialogue">"实至名归。VP不是终点，是新的起点。"</p>`
+      :`<p>"经评审委员会讨论，本次晋升名额授予其他候选人。"</p><p>李伟发来消息：</p><p class="dialogue">"别灰心。你的能力大家都认可。"</p>`,
+    choices:[{text:'继续前进',hint:'',effects:{},next:'scene_6_1'}]
+  };
+
+  let content=document.getElementById('scene-content');
+  let html=`<div class="scene-act fade-in">第五章</div><h2 class="scene-title fade-in">${scene.title}</h2><div class="scene-text fade-in">${scene.text}</div><div class="choices fade-in">`;
+  scene.choices.forEach((c,i)=>{
+    html+=`<button class="choice-btn" onclick="applyEffects(${JSON.stringify(c.effects)});setTimeout(()=>renderScene('${c.next}'),350)">${c.text}<span class="choice-hint">${c.hint||''}</span></button>`;
+  });
+  html+='</div>';
+  content.innerHTML=html;
+  updateUI();
+}
+
+// ========== ENDINGS ==========
+function getEnding(){
+  let s=G.stats;
+  if(s.reputation>=70&&s.skill>=50&&s.relationship>=40)return{icon:'👔',title:'传奇 · 金融巨子',sub:'你成为了行业的标杆',sum:`<p>${G.name}，你的故事在金融圈广为流传。凭借过硬的专业能力和不可动摇的职业操守，你一步步走到了行业顶端。</p><p>你管理过的IPO项目累计融资超过200亿，你培养的团队遍布各大券商的核心岗位。</p><p><b style="color:var(--gold)">你不仅是一位成功的金融人，更是一位值得尊敬的金融人。</b></p>`};
+  if(s.skill>=60&&s.reputation>=40)return{icon:'📊',title:'实力派 · 专业精英',sub:'专业能力是你最坚固的护城河',sum:`<p>${G.name}，你是那种"关键时刻会被想起"的人。在复杂的财务问题和棘手的合规困境中，大家第一个想到的就是你。</p><p><b style="color:var(--gold)">真正的实力永远不会被埋没。</b></p>`};
+  if(s.wealth>=70&&s.reputation<40)return{icon:'💰',title:'财富猎手',sub:'金钱是你的记分牌',sum:`<p>${G.name}，你深谙金融游戏的规则。你的银行账户令人羡慕，但口碑毁誉参半。</p><p><b style="color:var(--gold)">在金融世界，财富是最直观的成就指标。</b></p>`};
+  if(s.relationship>=60&&s.skill<35)return{icon:'🤝',title:'人脉之王',sub:'认识谁比知道什么更重要',sum:`<p>${G.name}，你是金融圈的"超级连接器"。几乎每个人都认识你。</p><p><b style="color:var(--gold)">人脉是杠杆，但专业能力才是支点。</b></p>`};
+  if(s.stress_mgmt<=20)return{icon:'😰',title:'燃烧的蜡烛',sub:'成功需要代价',sum:`<p>${G.name}，你把自己逼得太紧了。在某一个普通的周三早晨，你发现自己无法从床上爬起来。</p><p><b style="color:var(--gold)">在金融行业，活得久比跑得快更重要。</b></p>`};
+  return{icon:'🌱',title:'成长中的金融人',sub:'每一次选择都在塑造未来的你',sum:`<p>${G.name}，你犯过错，也做对过事。你见过金融世界的光鲜，也体会过其中的残酷。</p><p><b style="color:var(--gold)">持续成长本身就是最大的成功。</b></p>`};
+}
+
+function showEnding(){
+  G.ended=true;
+  let e=getEnding();
+  document.getElementById('end-icon').textContent=e.icon;
+  document.getElementById('end-title').textContent=e.title;
+  document.getElementById('end-subtitle').textContent=e.sub;
+  document.getElementById('end-summary').innerHTML=e.sum;
+  let sh='';
+  const nm={skill:'专业',relationship:'人脉',reputation:'声望',stress_mgmt:'压力',wealth:'财富'};
+  const ic={skill:'📊',relationship:'🤝',reputation:'⭐',stress_mgmt:'🧘',wealth:'💰'};
+  for(let[k,n]of Object.entries(nm)){sh+=`<div class="end-stat"><div class="es-val">${ic[k]} ${G.stats[k]}</div><div class="es-label">${n}</div></div>`}
+  document.getElementById('end-stats').innerHTML=sh;
+  showScreen('ending');
+  // Submit score
+  let total=Object.values(G.stats).reduce((a,b)=>a+b,0);
+  api('/game/score',{method:'POST',body:JSON.stringify({score:total,ending:e.title,career_title:getCareer().title,stats:G.stats})}).catch(()=>{});
+}
+
+function showBurnout(){
+  G.ended=true;G.log.push({day:G.day,text:'⚠️ 因压力过大导致职业倦怠'});
+  document.getElementById('end-icon').textContent='😰';
+  document.getElementById('end-title').textContent='职业倦怠';
+  document.getElementById('end-subtitle').textContent='你把自己逼得太紧了';
+  document.getElementById('end-summary').innerHTML=`<p>连续的高压工作让你身心俱疲。在某一天早晨，你发现自己无法从床上起来。</p><p><b style="color:var(--gold)">记住：在金融行业，活得久比跑得快更重要。</b></p>`;
+  let sh='';const nm={skill:'专业',relationship:'人脉',reputation:'声望',stress_mgmt:'压力',wealth:'财富'};const ic={skill:'📊',relationship:'🤝',reputation:'⭐',stress_mgmt:'🧘',wealth:'💰'};
+  for(let[k,n]of Object.entries(nm))sh+=`<div class="end-stat"><div class="es-val">${ic[k]} ${G.stats[k]}</div><div class="es-label">${n}</div></div>`;
+  document.getElementById('end-stats').innerHTML=sh;showScreen('ending');
+}
+
+function showFired(){
+  G.ended=true;G.log.push({day:G.day,text:'❌ 因声望过低被劝退'});
+  document.getElementById('end-icon').textContent='📦';
+  document.getElementById('end-title').textContent='离职通知';
+  document.getElementById('end-subtitle').textContent='你的声望降到了谷底';
+  document.getElementById('end-summary').innerHTML=`<p>HR约你在小会议室谈话……走出大厦时，阳光刺眼。</p><p><b style="color:var(--gold)">跌倒不可怕，可怕的是不知道自己为什么跌倒。</b></p>`;
+  let sh='';const nm={skill:'专业',relationship:'人脉',reputation:'声望',stress_mgmt:'压力',wealth:'财富'};const ic={skill:'📊',relationship:'🤝',reputation:'⭐',stress_mgmt:'🧘',wealth:'💰'};
+  for(let[k,n]of Object.entries(nm))sh+=`<div class="end-stat"><div class="es-val">${ic[k]} ${G.stats[k]}</div><div class="es-label">${n}</div></div>`;
+  document.getElementById('end-stats').innerHTML=sh;showScreen('ending');
+}
+
+// ========== SAVE ==========
+async function showSaveModal(){
+  const modal=document.getElementById('modal-content');
+  let html='<h3>💾 存档管理</h3>';
+  try{
+    const data=await api('/game/load');
+    if(data.saves.length>0){
+      html+='<div class="save-list">';
+      data.saves.forEach(s=>{
+        const d=new Date(s.updated_at).toLocaleString('zh-CN');
+        html+=`<div class="save-item"><div class="si-info"><div class="si-name">${s.name}</div><div>第${s.state.day}天 · ${d}</div></div><div class="si-actions"><button class="btn btn-sm btn-gold" onclick="loadSave(${s.id})">加载</button><button class="btn btn-sm btn-danger" onclick="deleteSave(${s.id})">删除</button></div></div>`;
+      });
+      html+='</div>';
+    }else{html+='<p style="text-align:center;color:var(--text3);padding:20px">暂无存档</p>'}
+  }catch(e){html+='<p>加载存档列表失败</p>'}
+  html+=`<button class="btn btn-gold" style="width:100%;margin-top:12px" onclick="doSave()">保存当前进度</button>`;
+  html+=`<button class="btn btn-outline" style="width:100%" onclick="closeModal()">关闭</button>`;
+  modal.innerHTML=html;
+  document.getElementById('modal-overlay').classList.add('show');
+}
+
+async function doSave(){
+  try{
+    await api('/game/save',{method:'POST',body:JSON.stringify({state:G,name:`第${G.day}天存档`})});
+    closeModal();
+    let el=document.createElement('div');el.className='stat-toast pos';el.textContent='💾 保存成功';
+    document.body.appendChild(el);setTimeout(()=>el.remove(),2000);
+  }catch(e){alert('保存失败: '+e.message)}
+}
+
+async function deleteSave(id){
+  if(!confirm('确定删除此存档？'))return;
+  try{await api('/game/save/'+id,{method:'DELETE'});showSaveModal()}catch(e){alert('删除失败')}
+}
+
+// ========== JOURNAL ==========
+function showJournal(){showScreen('journal');switchJTab(document.querySelector('.j-tab.active')||document.querySelector('.j-tab'),'status')}
+function hideJournal(){showScreen('game')}
+
+function switchJTab(el,tab){
+  document.querySelectorAll('.j-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  let c=document.getElementById('journal-content');
+  if(tab==='status'){
+    let career=getCareer();
+    let html=`<div class="j-section"><div class="j-career"><div class="jc-icon">${career.icon}</div><div class="jc-title">${career.title}</div><div class="jc-company">宇宙证券 · 投行部</div><div class="jc-salary">${career.salary}</div></div></div>`;
+    html+='<div class="j-section"><h3>📊 核心属性</h3>';
+    const cfg=[{k:'skill',n:'专业技能',i:'📊',cl:'var(--blue)'},{k:'relationship',n:'人脉关系',i:'🤝',cl:'var(--green)'},{k:'reputation',n:'声望名誉',i:'⭐',cl:'var(--gold)'},{k:'stress_mgmt',n:'压力管理',i:'🧘',cl:'var(--red)'},{k:'wealth',n:'财富积累',i:'💰',cl:'#9b59b6'}];
+    for(let sc of cfg){html+=`<div class="j-stat-row"><div class="j-stat-icon">${sc.i}</div><div class="j-stat-info"><div class="j-stat-name">${sc.n}</div><div class="j-stat-bar"><div class="j-stat-fill" style="width:${G.stats[sc.k]}%;background:${sc.cl}"></div></div></div><div class="j-stat-val" style="color:${sc.cl}">${G.stats[sc.k]}</div></div>`}
+    html+='</div>';
+    html+=`<div class="j-section"><h3>📈 统计</h3><div class="j-event">游戏天数：${G.day} 天</div><div class="j-event">做出选择：${G.choices} 次</div><div class="j-event">习得知识：${G.knowledge.length} / ${Object.keys(window.KNOWLEDGE_DB||{}).length}</div></div>`;
+    c.innerHTML=html;
+  }
+  if(tab==='knowledge'){
+    let html='';
+    if(!G.knowledge.length){html='<div class="j-event" style="text-align:center;padding:30px;color:var(--text3)">暂无知识<br>继续游戏以解锁 📚</div>'}
+    else{html='<div class="j-section"><h3>📚 已解锁知识</h3>';for(let kid of G.knowledge){let k=window.KNOWLEDGE_DB[kid];if(k)html+=`<div class="j-knowledge-item"><div class="jki-name">${k.name}</div><div class="jki-desc">${k.desc}</div></div>`}html+='</div>'}
+    c.innerHTML=html;
+  }
+  if(tab==='log'){
+    let html='<div class="j-section"><h3>📝 事件记录</h3>';
+    if(!G.log.length)html+='<div class="j-event">暂无记录</div>';
+    else{for(let e of[...G.log].reverse())html+=`<div class="j-event"><span class="je-day">第${e.day}天</span> ${e.text}</div>`}
+    html+='</div>';c.innerHTML=html;
+  }
+  if(tab==='leaderboard'){
+    c.innerHTML='<div class="loading"><div class="loading-spinner"></div><div class="loading-text">加载中...</div></div>';
+    api('/game/leaderboard').then(data=>{
+      let html='<div class="j-section"><h3>🏆 排行榜</h3>';
+      if(!data.leaderboard.length)html+='<div class="j-event" style="text-align:center;color:var(--text3)">暂无记录</div>';
+      else{data.leaderboard.forEach((l,i)=>{html+=`<div class="lb-item"><div class="lb-rank">${i+1}</div><div class="lb-info"><div class="lb-name">${l.nickname||l.username}</div><div class="lb-score">${l.career_title||''} · ${l.ending||''} · 得分 ${l.score}</div></div></div>`})}
+      html+='</div>';c.innerHTML=html;
+    }).catch(()=>{c.innerHTML='<div class="j-event">加载失败</div>'});
+  }
+}
+
+// ========== UI HELPERS ==========
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+id).classList.add('active')}
+function closeModal(){document.getElementById('modal-overlay').classList.remove('show')}
+document.getElementById('modal-overlay').addEventListener('click',e=>{if(e.target.id==='modal-overlay')closeModal()});
+
+// ========== INIT ==========
+window.addEventListener('DOMContentLoaded', async ()=>{
+  // Enter key handlers
+  document.getElementById('login-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
+  document.getElementById('reg-pass2').addEventListener('keydown',e=>{if(e.key==='Enter')doRegister()});
+
+  if(token){
+    try{
+      const res = await api('/auth/login',{method:'POST',body:JSON.stringify({})}).catch(()=>null);
+      // Token might still be valid, try loading saves
+      checkExistingSave();
+    }catch(e){
+      localStorage.removeItem('fg_token');
+      token=null;
+    }
+  }
+});
+</script>
+</body>
+</html>

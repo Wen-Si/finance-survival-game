@@ -1,0 +1,12 @@
+{
+  "name": "finance-survival-game",
+  "version": "1.0.0",
+  "description": "金融职场生存记 - 宇宙证券",
+  "scripts": {
+    "start": "cd backend && node server.js",
+    "dev": "cd backend && node server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
